@@ -155,7 +155,7 @@ Pointer<T, size>::~Pointer(){
     // Lab: New and Delete Project Lab
     typename std::list<PtrDetails<T>>::iterator p = findPtrInfo(addr);
 
-    if ( p->refcount )
+    if( p->refcount )
         p->refcount--;
 }
 
@@ -167,8 +167,30 @@ bool Pointer<T, size>::collect(){
     // TODO: Implement collect function
     // LAB: New and Delete Project Lab
     // Note: collect() will be called in the destructor
+    std::cout << "in collect. refContainerSize is " << refContainerSize() << "\n";
+    bool memfreed = false;
+    typename std::list<PtrDetails<T> >::iterator p;
+    do{
+        for( p=refContainer.begin(); p!=refContainer.end(); p++){
+            if ( p->refcount>0 )
+                continue;
+            
+            memfreed = true;
+            
+            refContainer.remove(*p);
+            
+            if (p->memPtr) {
+                if (p->isArray)
+                    delete [] p->memPtr;
+                else
+                    delete p->memPtr;
+            }
+            break;
+        }
+    } while (p != refContainer.end());
 
-    return false;
+    std::cout << "out collect. refContainerSize is " << refContainerSize() << "\n";
+    return memfreed;
 }
 
 // Overload assignment of pointer to Pointer.
